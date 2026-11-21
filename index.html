@@ -38,10 +38,16 @@ textarea:focus{border-color:var(--olive);background:rgba(188,215,238,.18);outlin
 .card{border:1px solid #2a2a2a;border-radius:6px;padding:1rem;margin-bottom:1rem;overflow-wrap:anywhere}
 .card b{display:block;margin-top:.8rem;color:var(--blue);font-weight:400;font-size:.8rem}.card pre{white-space:pre-wrap;font:inherit}
 .s{display:inline-block;padding:.1rem .8rem;border-radius:99px;background:#333}.s.yes{background:var(--olive)}.s.no{background:#555}
+.chat{width:min(30rem,100%);display:flex;flex-direction:column;justify-content:flex-end;align-items:flex-start;gap:.7rem;max-height:100%;overflow:hidden;text-align:left}
+.bub{font:300 1.1rem/1.5 Jost,'Noto Serif Bengali',sans-serif;padding:.8rem 1.2rem;border:1px solid rgba(11,11,11,.18);border-radius:20px 20px 20px 4px;background:rgba(246,243,234,.75);backdrop-filter:blur(6px);color:var(--ink);max-width:92%}
+.bub i{display:inline-block;width:6px;height:6px;margin:0 2px;border-radius:50%;background:currentColor;opacity:.4;animation:dot 1s infinite}.bub i:nth-child(2){animation-delay:.15s}.bub i:nth-child(3){animation-delay:.3s}
+@keyframes dot{50%{transform:translateY(-4px);opacity:1}}
+.btn.pill{border:1px solid currentColor;border-radius:999px;padding:.9rem 2rem}
+.form{background:rgba(255,255,255,.45);border:1px solid rgba(11,11,11,.12);border-radius:22px;padding:1.4rem 1.4rem 1.8rem;backdrop-filter:blur(8px)}
 </style></head><body>
 <canvas id="fx"></canvas><div id="fl"></div><div id="glow"></div><main id="stage"></main>
 <button id="snd" aria-label="Toggle music">♪</button><button id="skip" hidden>skip</button>
-<section id="admin" hidden><header><h2>Responses <small id="st">live</small></h2><button id="close">Close</button></header><div id="list"></div></section>
+<section id="admin" hidden><header><h2>Responses <small id="st">live</small></h2><span><button id="wipe">Delete all</button> <button id="close">Close</button></span></header><div id="list"></div></section>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script type="module">
 /* ============ CONFIG — edit here ============ */
@@ -56,6 +62,7 @@ const $=(s,r=document)=>r.querySelector(s),stage=$('#stage'),root=document.docum
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const wait=s=>new Promise(r=>setTimeout(r,s*1000*(reduce?.4:1)));
 /* ---------- Firebase (RTDB, no login) ---------- */
+const ua=navigator.userAgent,platform=/android/i.test(ua)?'Android':(/iphone|ipad|ipod/i.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1))?'iOS':/windows/i.test(ua)?'Windows':/mac/i.test(ua)?'Mac':'Other',device=`${platform} · ${innerWidth}×${innerHeight}`;
 let FB=null;const sid=localStorage.mohonaSid||(localStorage.mohonaSid=crypto.randomUUID());
 try{if(firebaseConfig.databaseURL&&!firebaseConfig.databaseURL.includes('YOUR')){const A=await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js'),D=await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js');
  FB={D,db:D.getDatabase(A.initializeApp(firebaseConfig))}}}catch(e){console.warn('Firebase unavailable',e)}
@@ -97,58 +104,83 @@ let lp=0;addEventListener('keydown',e=>{if(e.key.toLowerCase()!=='p'||e.repeat||
  if(n-lp<ADMIN_GAP_MS){lp=0;openAdmin()}else lp=n});
 let offDb=null;function openAdmin(){$('#admin').hidden=false;if(!FB){$('#list').textContent='Firebase config not set.';return}
  offDb?.();offDb=FB.D.onValue(FB.D.ref(FB.db,'responses'),s=>{const L=$('#list');L.replaceChildren();const d=s.val();if(!d){L.textContent='No sessions yet.';return}
-  Object.values(d).sort((a,b)=>(b.timestamp||0)-(a.timestamp||0)).forEach(r=>{const c=document.createElement('div');c.className='card';
+  Object.entries(d).sort((a,b)=>(b[1].timestamp||0)-(a[1].timestamp||0)).forEach(([key,r])=>{const c=document.createElement('div');c.className='card';
    const row=(k,v)=>{const b=document.createElement('b');b.textContent=k;const p=document.createElement('pre');p.textContent=v||'—';c.append(b,p)};
    const s=document.createElement('span');s.className='s '+(r.proposalResponse||'');s.textContent=(r.proposalResponse||'not answered').toUpperCase();c.append(s);
-   row('Timestamp',r.timestamp?new Date(r.timestamp).toLocaleString():'');row('Session ID',r.sessionId);row("Mohona's final message",r.finalMessage);row('Requests / preferences',r.relationshipPreferences);
-   row('Events',Object.values(r.events||{}).map(e=>new Date(e.t).toLocaleTimeString()+' '+e.type+(e.value?': '+e.value:'')).join('\n'));L.append(c)})},e=>{$('#list').textContent='Read denied by database rules.'})}
+   row('Timestamp',r.timestamp?new Date(r.timestamp).toLocaleString():'');row('Session ID',r.sessionId);row('Device',r.device);row("Mohona's final message",r.finalMessage);row('Requests / preferences',r.relationshipPreferences);
+   row('Events',Object.values(r.events||{}).map(e=>new Date(e.t).toLocaleTimeString()+' '+e.type+(e.value?': '+e.value:'')).join('\n'));const x=document.createElement('button');x.textContent='Delete';x.style.marginTop='1rem';x.onclick=()=>confirm('Delete this session?')&&FB.D.remove(FB.D.ref(FB.db,'responses/'+key));c.append(x);L.append(c)})},e=>{$('#list').textContent='Read denied by database rules.'})}
+$('#wipe').onclick=async()=>{if(!FB||!confirm('Delete ALL sessions?'))return;const v=(await FB.D.get(FB.D.ref(FB.db,'responses'))).val()||{};for(const k of Object.keys(v))await FB.D.remove(FB.D.ref(FB.db,'responses/'+k))};
 $('#close').onclick=()=>{$('#admin').hidden=true;offDb?.();offDb=null};addEventListener('keydown',e=>e.key==='Escape'&&$('#close').click());
 /* ---------- Scenes ---------- */
-async function opening(){const s=Math.min(innerWidth*.9,460);plant(1,{sizes:[s,s],center:true});await wait(2);
- const h=big('');h.innerHTML=[...'MOHONA'].map(c=>`<span class="ch">${c}</span>`).join('');
- await gsap.fromTo(h.children,{autoAlpha:0,letterSpacing:'.8em',filter:'blur(16px)'},{autoAlpha:1,letterSpacing:'.04em',filter:'blur(0)',duration:3,stagger:.25,ease:'power3.out'}).then();
- await wait(2);await fade(h,2);await clearPlants();}
-async function birthday(){const h=big('Happy Birthday');plant(3);await reveal(h,{d:2,st:.07});await wait(3);await fade(h,2);
- const L=['Happy Birthday… এমন একজনকে, যে শুধু special না, সত্যিই আমার কাছে অনেক special.','আজকে তোমার birthday, কিন্তু কেন জানি মনে হচ্ছে আজকের দিনটা আমার জন্যও special.','কারণ আজ আমি তোমাকে এমন একটা কথা বলতে চাই, যেটা অনেকদিন ধরে মনে লুকিয়ে রেখেছি।'];
- for(const t of L)await line(t,{hold:3.2,d:1.8});await clearPlants()}
-async function story(){for(const t of ['আমি ঠিক জানি না, কখন থেকে...','কখন যে তোমার সাথে কথা বলাটা এমন কিছু হয়ে গেল, যার জন্য আমি অপেক্ষা করি — সত্যি বলছি, আমি নিজেও জানি না।','কিন্তু আস্তে আস্তে তুমি এমন একজন হয়ে গেলে, যাকে আমি সত্যিই অনেক care করি।','তোমার হাসি, তোমার কথা বলার ধরন, এমনকি ছোট ছোট জিনিসগুলোও...','কীভাবে জানি, সবকিছুই আমার কাছে special হয়ে গেছে।'])await line(t,{hold:3.4,d:1.8})}
+const say=async(a,o={})=>{for(const t of a)await line(t,{hold:3,d:1.8,...o})};
+async function chat(msgs){stage.innerHTML='<div class="chat"></div>';const c=$('.chat');
+ for(const m of msgs){const b=document.createElement('div');b.className='bub';b.innerHTML='<i></i><i></i><i></i>';c.append(b);gsap.from(b,{autoAlpha:0,y:20,duration:.8});await wait(1.1);
+  b.textContent=m;gsap.fromTo(b,{scale:.95},{scale:1,duration:.7,ease:'back.out(2)'});await wait(1.7)}
+ await wait(1.6);await fade(c,1.5)}
+async function ask(q,sub,labels=['Yes','No']){stage.innerHTML=`<div><div style="position:absolute;inset:0;display:grid;place-items:center">${flower(10,Math.min(innerWidth,520))}</div>
+ <h1 class="big" style="position:relative;font-size:clamp(1.9rem,8vw,4.4rem);line-height:1.2">${q}</h1><p class="sub" style="position:relative">${sub}</p>
+ <div class="row" style="position:relative"><button class="btn pill" data-a="yes">${labels[0]}</button><button class="btn pill dim" data-a="no">${labels[1]}</button></div></div>`;
+ const a=stage.firstElementChild,h=$('h1',a),sub_=$('.sub',a),bt=[...a.querySelectorAll('.btn')],f=$('svg',a);f.style.opacity=.25;gsap.set([sub_,...bt],{autoAlpha:0});
+ bloom(f,5);await reveal(h,{d:2.2,st:.09});await gsap.to(sub_,{autoAlpha:.7,duration:2}).then();await wait(.8);await gsap.to(bt,{autoAlpha:1,duration:1.6,stagger:.3}).then();bt.forEach(magnetic);
+ return new Promise(res=>bt.forEach(b=>b.onclick=async()=>{bt.forEach(x=>x.onclick=null);await fade(a,1.6);res(b.dataset.a)}))}
+async function intro(){const s=Math.min(innerWidth*.9,460);plant(1,{sizes:[s,s],center:true});await wait(1.5);
+ stage.innerHTML='<div><p class="line" id="a">Are you ready,</p><h1 class="big" id="b"></h1><div class="row"><button class="btn pill" id="go">Ready</button></div></div>';
+ const g=$('#go'),h=$('#b');gsap.set(g,{autoAlpha:0});h.innerHTML=[...'MOHONA?'].map(c=>`<span class="ch">${c}</span>`).join('');gsap.set(h.children,{autoAlpha:0});
+ await reveal($('#a'),{d:1.6});await gsap.fromTo(h.children,{autoAlpha:0,letterSpacing:'.5em',filter:'blur(16px)'},{autoAlpha:1,letterSpacing:'.04em',filter:'blur(0)',duration:3,stagger:.25,ease:'power3.out'}).then();
+ await gsap.to(g,{autoAlpha:1,duration:1.6}).then();magnetic(g);await new Promise(r=>g.onclick=()=>{if(MUSIC_URL)aud.play().catch(()=>{});r()});await fade(stage.firstElementChild,1.6);await clearPlants()}
+async function birthday(){const h=big('Happy Birthday');plant(3);await reveal(h,{d:2,st:.07});await wait(2);await fade(h,2);
+ const m=big('Mohona');await reveal(m,{d:2.4,st:.12});await wait(2);await fade(m,2);await line('Many many happy returns of the day.',{hold:3.4,d:2});await clearPlants()}
 async function memories(){const list=MEMORIES.filter(m=>m.src);if(!list.length)return;const sk=$('#skip');let skipped=false;sk.hidden=false;sk.onclick=()=>skipped=true;await line('কিছু মুহূর্ত আমি এখনও যত্ন করে রেখেছি।',{hold:2});
  for(const M of list){if(skipped)break;const m=document.createElement('div');m.className='mem';if(M.src){const i=new Image();i.loading='lazy';i.alt='';i.src=M.src;i.onerror=()=>i.remove();m.append(i)}
   const p=document.createElement('p');p.textContent=M.cap;m.append(p);stage.replaceChildren(m);
   gsap.fromTo(m,{clipPath:'inset(50% 50% 50% 50%)'},{clipPath:'inset(0% 0% 0% 0%)',duration:2.4,ease:'power4.inOut'});
   gsap.fromTo(m.firstChild===p?m:m.firstChild,{scale:1.3,filter:'blur(18px)'},{scale:1,filter:'blur(0px)',duration:7,ease:'power2.out'});
   gsap.from(p,{y:40,autoAlpha:0,duration:2,delay:2.2});for(let i=0;i<60&&!skipped;i++)await wait(.1);await gsap.to(m,{autoAlpha:0,duration:1.4}).then()}sk.hidden=true}
+
+async function playboy(){await say(['Ajker dinta amar jonno onek special.','Ami jani, ajker din tomar jonno-o special...','kintu amar jonno ta onek, onek beshi special.','23 tarikh — dinta ketota special, ami tomake kemon kore bujhabo, jani na.','Kintu... anyway.']);
+ await say(['Tumi to bolo, ami playboy — tai na?','Playboyder skill thake, shundor kore propose korte pare.','Kintu ami eta pari na.','So... ami ekta failed playboy.']);
+ const h=big('Hehehe');await reveal(h,{d:1.2,st:.12});await gsap.to(h.querySelectorAll('.ch'),{y:-22,duration:.35,stagger:.07,yoyo:true,repeat:3,ease:'power2.inOut'}).then();await wait(1);await fade(h,1.4)}
+async function wills(){await say(['Mohona, tumi...'],{hold:2});await chat(['will be my girlfriend','will be my wife','will be my mine','will be my future','will be my world','will be my everything','will be my first priority','will be my permanent life partner'])}
 async function anticipation(){gsap.to(fx,{speed:.25,alpha:0,duration:6});gsap.to('#glow',{opacity:0,duration:3});await theme('#0b0b0b','#f6f3ea',6);
- for(const t of ['আর আজ, তোমার birthday তে, আমি শুধু একটা birthday wish দিতে চাই না।','আমি তোমাকে একটা feeling দিতে চাই।','এমন একটা feeling, যেটা বলে—','তুমি আমার কাছে সত্যিই অনেক important.','Ami jani na future e thik ki hobe,','kintu ekta jinish ami jani...','ami chai tumi tar ekta ongsho hou.'])await line(t,{hold:3.4,d:2.2})}
-async function proposal(){for(const t of ['তো আজ...','তোমার birthday তে...','আমার তোমাকে শুধু একটাই প্রশ্ন আছে।'])await line(t,{hold:2.8,d:2.2});
- const fs=Math.min(innerWidth*.8,420);plant(1,{sizes:[fs,fs],center:true});await wait(9); /* the silence: just a slowly blooming flower */ await clearPlants();
- const q=big('তুমি কি আমার হবে?');await reveal(q,{d:2.6,st:.1});await wait(3.5);await fade(q,2);
- for(const t of ['Ami perfect howar promise korchi na...','কিন্তু একটা promise আমি করতে পারি—','তুমি আমার কাছে কতটা special, সেটা আমি সবসময় তোমাকে বুঝতে দেওয়ার চেষ্টা করব।','তো...'])await line(t,{hold:3,d:2});
- stage.innerHTML=`<div><div style="position:absolute;inset:0;display:grid;place-items:center">${flower(10,Math.min(innerWidth,520))}</div>
- <h1 class="big" style="position:relative">তুমি কি আমাকে বেছে নেবে?</h1><p class="sub" style="position:relative">যত সময় লাগে নাও</p>
- <div class="row" style="position:relative"><button class="btn" data-a="yes">হ্যাঁ</button><button class="btn dim" data-a="no">না</button></div></div>`;
- const a=stage.firstElementChild,h=$('h1',a),sub=$('.sub',a),bt=[...a.querySelectorAll('.btn')],f=$('svg',a);f.style.opacity=.25;gsap.set([sub,...bt],{autoAlpha:0});
- bloom(f,5);await reveal(h,{d:2.4,st:.09});await gsap.to(sub,{autoAlpha:.7,duration:2}).then();await wait(1);await gsap.to(bt,{autoAlpha:1,duration:1.6,stagger:.3}).then();bt.forEach(magnetic);
- return new Promise(res=>bt.forEach(b=>b.onclick=async()=>{bt.forEach(x=>x.onclick=null);await fade(a,1.6);res(b.dataset.a)}))}
-async function yes(){log('answer',{value:'yes'});save({proposalResponse:'yes'});await theme('#f6f3ea','#0b0b0b',4);gsap.to(fx,{speed:2.5,alpha:1,duration:4});gsap.to('#glow',{opacity:1,duration:3});
+ await say(['Ekta kotha jiggesh korbo?','Shudhu ekta.'],{hold:3.2,d:2.2});
+ const fs=Math.min(innerWidth*.8,420);plant(1,{sizes:[fs,fs],center:true});await wait(9);await clearPlants()}
+async function love(){await theme('#f6f3ea','#0b0b0b',4);gsap.to(fx,{speed:1.4,alpha:1,duration:3});gsap.to('#glow',{opacity:1,duration:3});const z=Math.min(innerWidth*.8,innerHeight*.6,380);
+ stage.innerHTML=`<svg viewBox="0 0 300 300" width="${z}" height="${z}" fill="none" stroke="#0b0b0b" stroke-width="1.2" stroke-linecap="round">
+ <path class="d" pathLength="1" d="M60 282H240"/><path class="d" pathLength="1" d="M150 282C152 235 146 205 150 168"/>
+ <path class="d" pathLength="1" d="M150 250C132 244 118 236 106 224"/><path class="d" pathLength="1" d="M150 245C168 239 182 231 194 219"/>
+ <path class="d" pathLength="1" d="M150 230C125 218 108 200 96 178"/><path class="d" pathLength="1" d="M150 215C176 203 192 188 204 166"/>
+ <path class="d hr" pathLength="1" stroke="#6b7a3a" fill="#6b7a3a" fill-opacity="0" d="M150 120C150 90 108 86 108 112C108 134 150 150 150 168C150 150 192 134 192 112C192 86 150 90 150 120Z"/></svg>`;
+ plant(6,{solid:true,sizes:[90,200]});const sv=stage.firstElementChild;
+ await gsap.fromTo('.d',{strokeDasharray:1,strokeDashoffset:1},{strokeDashoffset:0,duration:3,stagger:.45,ease:'power2.inOut'}).then();
+ gsap.to('.hr',{fillOpacity:.8,duration:2});await wait(3.5);await fade(sv,2);await clearPlants()}
+async function yes(){log('answer',{value:'yes'});save({proposalResponse:'yes'});gsap.to(fx,{speed:2.5,alpha:1,duration:4});
  plant(7,{solid:true,sizes:[160,380]});gsap.to('body',{backgroundImage:'radial-gradient(circle at 50% 60%,rgba(107,122,58,.35),rgba(188,215,238,.25) 55%,transparent 80%)',duration:5});
- const h=big('হ্যাঁ।');await reveal(h,{d:2.4,st:.2});await gsap.fromTo(h,{scale:.9},{scale:1.12,duration:6,ease:'power1.out'}).then();await fade(h,2);
- await line('এই মুহূর্তটা আমি সারাজীবন মনে রাখব।',{hold:3.6})}
-async function no(){log('answer',{value:'no'});save({proposalResponse:'no'});await theme('#f6f3ea','#0b0b0b',4);gsap.to(fx,{speed:.8,alpha:.8,duration:3});gsap.to('#glow',{opacity:1,duration:3});
- for(const t of ['ঠিক আছে। সত্যিই।','সৎ উত্তর দেওয়াটাও একটা উপহার।','তুমি আমার কাছে যতটা important, তার কিছুই বদলাবে না।','যত সময় লাগে নাও। তোমার মনের কথাটা আমাকে বলো।'])await line(t,{hold:2.9})}
-async function message(){const F=[['finalMessage','আমাকে যা বলতে চাও, বলো।',2000],['relationshipPreferences','তুমি কী কী পছন্দ করো, কী করো না, আমার কাছে কী আশা করো, কীসে তুমি খুশি থাকো, তোমার boundaries, ছোট ছোট wish, আর কী কী মনে রাখা উচিত — সব তোমার নিজের কথায় লেখো।',3000]];
- stage.innerHTML=`<div class="form"><p class="line" style="margin-bottom:.5rem">মোহনা, এবার তোমার পালা।</p><p class="sub" style="margin:0 0 1rem">কোনো নিয়ম নেই। যত ইচ্ছা, যেমন ইচ্ছা লেখো।</p>
- ${F.map(([k,l,m])=>`<label for="${k}">${l}</label><textarea id="${k}" maxlength="${m}"></textarea><div class="cnt" data-for="${k}">0 / ${m}</div>`).join('')}<div style="text-align:center"><button class="btn" id="send">পাঠাও</button></div></div>`;
+ const h=big('Yayyy!');await reveal(h,{d:1.6,st:.15});await gsap.to(h.querySelectorAll('.ch'),{y:-26,duration:.4,stagger:.08,yoyo:true,repeat:3,ease:'power2.inOut'}).then();await wait(1.5);await fade(h,2);
+ await say(['Tumi sotti accept korso!','Ami ekhono biswas korte parchi na.'],{hold:3.4})}
+async function no(){log('answer',{value:'no'});save({proposalResponse:'no'});gsap.to(fx,{speed:.8,alpha:.8,duration:3});
+ await say(['Thik ache. Sotti.','Shotti uttor deowa-o ekta upohar.','Tumi amar kache ja chhile, tai-i thakbe.','Jototuku shomoy lage nao. Tomar moner kotha amake bolo.'],{hold:2.9})}
+async function message(yesAns){if(yesAns)await chat(['Achha Mohona, proposal to accept korso, tai na?','So ekhon theke tumi official-ly amar.','Amader relationship thakbe, obossoi.','Ekhon tumi amake likhe kichu bolte paro. Jemon: "eta amar bhalo lage na, eta korba na".','Ami tomar kotha mene nibo. Chesta korbo na, bolbo na — ami mene nibo.','Tumi ja bolba, tai hobe.','My life, your rules.']);
+ const F=[['finalMessage','Amake ja bolte chao, likhe dao.',2000],['relationshipPreferences','Tomar ja ja bhalo lage, bhalo lage na, ki ki korbo na, ki expect koro, kishe khushi thako, tomar rules — sob tomar nijer kothay likho. “My life, your rules.”',3000]];
+ stage.innerHTML=`<div class="form"><p class="line" style="margin-bottom:.5rem;font-size:clamp(1.4rem,5vw,2.2rem)">মোহনা, এবার তোমার পালা।</p><p class="sub" style="margin:0 0 1rem">Kono niyom nai. Jemon icche, joto icche likho.</p>
+ ${F.map(([k,l,m])=>`<label for="${k}">${l}</label><textarea id="${k}" maxlength="${m}"></textarea><div class="cnt" data-for="${k}">0 / ${m}</div>`).join('')}<div style="text-align:center"><button class="btn pill" id="send">Submit</button></div></div>`;
  const form=stage.firstElementChild;gsap.from(form.children,{autoAlpha:0,y:30,filter:'blur(8px)',duration:1.8,stagger:.2,ease:'power3.out'});
  F.forEach(([k,,m])=>{const t=$('#'+k);t.oninput=()=>{$(`[data-for=${k}]`).textContent=`${t.value.length} / ${m}`;t.style.height='auto';t.style.height=t.scrollHeight+'px'}});
- const b=$('#send');magnetic(b);await new Promise(r=>b.onclick=async()=>{b.disabled=true;b.textContent='পাঠানো হচ্ছে…';
+ const b=$('#send');magnetic(b);await new Promise(r=>b.onclick=async()=>{b.disabled=true;b.textContent='Sending…';
   await save({finalMessage:$('#finalMessage').value.trim(),relationshipPreferences:$('#relationshipPreferences').value.trim(),submittedAt:Date.now()});log('submitted');await fade(form,1.4);r()})}
-async function received(){stage.innerHTML='<p class="line">পেয়ে গেছি। খুব যত্নে থাকবে।</p>';plant(2,{solid:true});await wait(3.5);await fade(stage.firstElementChild,1.5);await clearPlants()}
-async function ending(){theme('#f6f3ea','#0b0b0b',3);gsap.to(fx,{speed:1,alpha:1,duration:3});plant(5,{sizes:[140,300]});
- for(const t of ['Tumi ja-i uttor dao, ajker diner ta tobuo tomar.','তো আরেকবার...','Happy Birthday, আমার special মানুষটা।','আমি চাই এই বছরটা তোমাকে সেই সবকিছু দিক, যা তুমি চেয়েছ।','আর চুপি চুপি...','আমি চাই সেই চাওয়াগুলোর একটা যেন আমি হই। :)'])await line(t,{hold:3.2,d:2});
- const h=big('MOHONA'),s=document.createElement('p');s.className='sub';s.textContent='শুভ জন্মদিন, Mohona।';stage.append(s);h.style.alignSelf='center';s.style.cssText='align-self:end;margin-bottom:12vh';gsap.set(s,{autoAlpha:0});
- await gsap.fromTo(h,{autoAlpha:0,letterSpacing:'.8em',filter:'blur(16px)'},{autoAlpha:1,letterSpacing:'.08em',filter:'blur(0)',duration:5,ease:'power3.out'}).then();
+async function ending(){plant(2,{solid:true});await say(['Pelam. Ami pore nebo, onek jotno kore.'],{hold:3.4});await clearPlants();
+ theme('#f6f3ea','#0b0b0b',3);gsap.to(fx,{speed:1,alpha:1,duration:3});plant(5,{sizes:[140,300]});await say(['Happy Birthday, Mohona.','Ajker dinta shudhu tomar.'],{hold:3.2,d:2});
+ const h=big('MOHONA'),s=document.createElement('p');s.className='sub';s.textContent='Ami achi. Shob shomoy.';stage.append(s);h.style.alignSelf='center';s.style.cssText='align-self:end;margin-bottom:12vh';gsap.set(s,{autoAlpha:0});
+ await gsap.fromTo(h,{autoAlpha:0,letterSpacing:'.5em',filter:'blur(16px)'},{autoAlpha:1,letterSpacing:'.08em',filter:'blur(0)',duration:5,ease:'power3.out'}).then();
  await gsap.to(s,{autoAlpha:.7,duration:3}).then();await wait(7);gsap.to([h,s,'#snd'],{autoAlpha:0,duration:6})}
-(async()=>{await document.fonts.ready;log('visit');await opening();await birthday();await story();await memories();await anticipation();
- const a=await proposal();await(a==='yes'?yes():no());await message();await received();await ending()})();
+(async()=>{await document.fonts.ready;log('visit');save({platform,device,userAgent:ua.slice(0,200)});
+ await intro();await birthday();await playboy();await memories();await wills();await anticipation();
+ const a1=await ask('মোহনা, তুমি কি আমার সাথে তোমার বাকি জীবনটা এই পৃথিবীতে শেয়ার করতে চাও?','ekdom shotti kore bolo');log('answer1',{value:a1});
+ if(a1==='no')await say(['Thik ache, tahole age shesh porjonto shuno...'],{hold:2.6});
+ await love();
+ await chat(['Ami bhabini, tomake eto bhalo lagbe.','Onek bhalo lage tomake. Ekhono onek bhalo lage.','Eto je bhalo lage, ki kore bujhai tomake.','“Bhalo lage” theke “bhalobasha” ta ektu beshi expensive hoye jay, tai na?','But amar tomake bhalo lage.','And I love you.']);
+ await chat(['Tumi kemon proposal-ta accept korba, jani na.','Ami jani, ami shundor kore propose korte parini.','Amar ei skill-ta nai.','But please, manage kore nio.']);
+ await chat(['Ami tomar kono khoti korbo na.','Ami onnoder moto na.','Ami tomake kokhono chere jabo na.','Jotodin tumi benche acho, ami tomar shathe-i thakbo — survive korbo.']);
+ await say(['Ebar ekta chhotto proposal...'],{hold:2.4});
+ const a2=await ask('মোহনা, তুমি কি আমার proposal-টা accept করবা?','');
+ await(a2==='yes'?yes():no());await message(a2==='yes');await ending()})();
 </script></body></html>
