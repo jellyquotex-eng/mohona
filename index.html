@@ -46,7 +46,7 @@ textarea:focus{border-color:var(--olive);background:rgba(188,215,238,.18);outlin
 .form{background:rgba(255,255,255,.45);border:1px solid rgba(11,11,11,.12);border-radius:22px;padding:1.4rem 1.4rem 1.8rem;backdrop-filter:blur(8px)}
 </style></head><body>
 <canvas id="fx"></canvas><div id="fl"></div><div id="glow"></div><main id="stage"></main>
-<button id="snd" aria-label="Toggle music">♪</button><button id="skip" hidden>skip</button>
+<button id="skip" hidden>skip</button>
 <section id="admin" hidden><header><h2>Responses <small id="st">live</small></h2><span><button id="wipe">Delete all</button> <button id="close">Close</button></span></header><div id="list"></div></section>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script type="module">
@@ -55,7 +55,7 @@ textarea:focus{border-color:var(--olive);background:rgba(188,215,238,.18);outlin
 const firebaseConfig={databaseURL:'https://ddwd-1319a-default-rtdb.firebaseio.com',projectId:'ddwd-1319a'};
 // Memories: put image URLs or data: URIs. Leave src '' and the scene still plays as a gradient with its caption.
 const MEMORIES=[{src:'',cap:'অনেক সাধারণ দিনের প্রথমটা'},{src:'',cap:'এই হাসিটা আমি হাজার মানুষের মাঝেও চিনব'},{src:'',cap:'কেন জানি, এখনও আমার সবচেয়ে প্রিয় দৃশ্য'}];
-const MUSIC_URL=''; // optional audio URL; never autoplays
+// Song: upload the mp3 next to index.html. Name it song.mp3 (or keep the long name below). Starts on the first tap/click anywhere, no button.
 const ADMIN_GAP_MS=600; // double-P window
 /* ============================================ */
 const $=(s,r=document)=>r.querySelector(s),stage=$('#stage'),root=document.documentElement;
@@ -99,7 +99,12 @@ const fx=petals($('#fx'),reduce?8:Math.min(36,innerWidth<600?22:36));
 const theme=(bg,ink,d=3)=>gsap.to(root,{'--bg':bg,'--ink':ink,duration:d,ease:'power1.inOut'}).then();
 addEventListener('pointermove',e=>{root.style.setProperty('--x',e.clientX+'px');root.style.setProperty('--y',e.clientY+'px')},{passive:true});
 /* audio + admin shortcut */
-const aud=new Audio();if(MUSIC_URL){aud.src=MUSIC_URL;aud.loop=true}$('#snd').onclick=()=>MUSIC_URL&&(aud.paused?aud.play().catch(()=>{}):aud.pause());
+const SONGS=['Ishq Bulaava (Lyrics) _ Hasee Toh Phasee _ Parineeti _ Sidharth _ Sanam Puri _ shipra Goyal..mp3','song.mp3'].map(encodeURI);
+const aud=new Audio();aud.loop=true;aud.preload='auto';let si=0,started=false;
+const nextSong=()=>{if(si<SONGS.length){aud.src=SONGS[si++];if(started)aud.play().catch(()=>{})}};aud.onerror=nextSong;nextSong();
+const startSong=()=>{if(started)return;started=true;aud.volume=.85;aud.play().catch(()=>{started=false})};
+['click','touchend','keydown'].forEach(t=>addEventListener(t,startSong,{passive:true}));
+document.addEventListener('visibilitychange',()=>{document.hidden?aud.pause():started&&aud.play().catch(()=>{})});
 let lp=0;addEventListener('keydown',e=>{if(e.key.toLowerCase()!=='p'||e.repeat||/INPUT|TEXTAREA/.test(e.target.tagName))return;const n=Date.now();
  if(n-lp<ADMIN_GAP_MS){lp=0;openAdmin()}else lp=n});
 let offDb=null;function openAdmin(){$('#admin').hidden=false;if(!FB){$('#list').textContent='Firebase config not set.';return}
@@ -127,7 +132,7 @@ async function intro(){const s=Math.min(innerWidth*.9,460);plant(1,{sizes:[s,s],
  stage.innerHTML='<div><p class="line" id="a">Are you ready,</p><h1 class="big" id="b"></h1><div class="row"><button class="btn pill" id="go">Ready</button></div></div>';
  const g=$('#go'),h=$('#b');gsap.set(g,{autoAlpha:0});h.innerHTML=[...'MOHONA?'].map(c=>`<span class="ch">${c}</span>`).join('');gsap.set(h.children,{autoAlpha:0});
  await reveal($('#a'),{d:1.6});await gsap.fromTo(h.children,{autoAlpha:0,letterSpacing:'.5em',filter:'blur(16px)'},{autoAlpha:1,letterSpacing:'.04em',filter:'blur(0)',duration:3,stagger:.25,ease:'power3.out'}).then();
- await gsap.to(g,{autoAlpha:1,duration:1.6}).then();magnetic(g);await new Promise(r=>g.onclick=()=>{if(MUSIC_URL)aud.play().catch(()=>{});r()});await fade(stage.firstElementChild,1.6);await clearPlants()}
+ await gsap.to(g,{autoAlpha:1,duration:1.6}).then();magnetic(g);await new Promise(r=>g.onclick=()=>{r()});await fade(stage.firstElementChild,1.6);await clearPlants()}
 async function birthday(){const h=big('Happy Birthday');plant(3);await reveal(h,{d:2,st:.07});await wait(2);await fade(h,2);
  const m=big('Mohona');await reveal(m,{d:2.4,st:.12});await wait(2);await fade(m,2);await line('Many many happy returns of the day.',{hold:3.4,d:2});await clearPlants()}
 async function memories(){const list=MEMORIES.filter(m=>m.src);if(!list.length)return;const sk=$('#skip');let skipped=false;sk.hidden=false;sk.onclick=()=>skipped=true;await line('কিছু মুহূর্ত আমি এখনও যত্ন করে রেখেছি।',{hold:2});
@@ -171,7 +176,7 @@ async function ending(){plant(2,{solid:true});await say(['Pelam. Ami pore nebo, 
  theme('#f6f3ea','#0b0b0b',3);gsap.to(fx,{speed:1,alpha:1,duration:3});plant(5,{sizes:[140,300]});await say(['Happy Birthday, Mohona.','Ajker dinta shudhu tomar.'],{hold:3.2,d:2});
  const h=big('MOHONA'),s=document.createElement('p');s.className='sub';s.textContent='Ami achi. Shob shomoy.';stage.append(s);h.style.alignSelf='center';s.style.cssText='align-self:end;margin-bottom:12vh';gsap.set(s,{autoAlpha:0});
  await gsap.fromTo(h,{autoAlpha:0,letterSpacing:'.5em',filter:'blur(16px)'},{autoAlpha:1,letterSpacing:'.08em',filter:'blur(0)',duration:5,ease:'power3.out'}).then();
- await gsap.to(s,{autoAlpha:.7,duration:3}).then();await wait(7);gsap.to([h,s,'#snd'],{autoAlpha:0,duration:6})}
+ await gsap.to(s,{autoAlpha:.7,duration:3}).then();await wait(7);gsap.to([h,s],{autoAlpha:0,duration:6});gsap.to(aud,{volume:0,duration:9})}
 (async()=>{await document.fonts.ready;log('visit');save({platform,device,userAgent:ua.slice(0,200)});
  await intro();await birthday();await playboy();await memories();await wills();await anticipation();
  const a1=await ask('মোহনা, তুমি কি আমার সাথে তোমার বাকি জীবনটা এই পৃথিবীতে শেয়ার করতে চাও?','ekdom shotti kore bolo');log('answer1',{value:a1});
