@@ -3,37 +3,37 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>For Mohona</title><meta name="theme-color" content="#f6f3ea"><meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;1,300&family=Jost:wght@300&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;1,300&family=Jost:wght@300&family=Noto+Serif+Bengali:wght@300;400&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#f6f3ea;--ink:#0b0b0b;--olive:#6b7a3a;--blue:#bcd7ee}
 *{box-sizing:border-box;margin:0}html,body{height:100%;overflow:hidden;overscroll-behavior:none}
-body{background:var(--bg);color:var(--ink);font:300 1rem Jost,sans-serif}
+body{background:var(--bg);color:var(--ink);font:300 1rem Jost,'Noto Serif Bengali',sans-serif}
 #fx,#fl,#glow{position:fixed;inset:0;width:100%;height:100%;pointer-events:none}
 #glow{background:radial-gradient(circle 260px at var(--x,50%) var(--y,50%),rgba(188,215,238,.4),transparent)}
 #fl .fl{position:absolute;opacity:.55;will-change:transform}
 #stage{position:fixed;inset:0;display:grid;place-items:center;text-align:center;
  padding:max(7vw,env(safe-area-inset-top)) max(7vw,env(safe-area-inset-right)) max(7vw,env(safe-area-inset-bottom)) max(7vw,env(safe-area-inset-left))}
 #stage>*{grid-area:1/1;max-width:100%}
-.line{font:italic 300 clamp(1.6rem,6vw,3.2rem)/1.35 'Cormorant Garamond',serif;max-width:19em}
-.big{font:300 clamp(2.4rem,13vw,8.5rem)/1 'Cormorant Garamond',serif;letter-spacing:.04em}
+.bn{font-style:normal;font-weight:300;letter-spacing:0!important;font-size:.9em}.line{font-synthesis:none;font:italic 300 clamp(1.6rem,6vw,3.2rem)/1.35 'Cormorant Garamond','Noto Serif Bengali',serif;max-width:19em}
+.big{font:300 clamp(2.4rem,13vw,8.5rem)/1 'Cormorant Garamond','Noto Serif Bengali',serif;letter-spacing:.04em}
 .sub{margin-top:1.4rem;opacity:.7;letter-spacing:.06em}
 .w{display:inline-block;white-space:nowrap}.ch{display:inline-block;will-change:transform,opacity,filter}
 .row{display:flex;gap:2.2rem;justify-content:center;margin-top:3rem}
-.btn{background:none;border:0;border-bottom:1px solid currentColor;color:inherit;font:300 1.15rem Jost,sans-serif;letter-spacing:.2em;padding:1rem 1.4rem;min-height:48px;min-width:96px;cursor:pointer;touch-action:manipulation}
+.btn{background:none;border:0;border-bottom:1px solid currentColor;color:inherit;font:300 1.15rem Jost,'Noto Serif Bengali',sans-serif;letter-spacing:.08em;padding:1rem 1.4rem;min-height:48px;min-width:96px;cursor:pointer;touch-action:manipulation}
 .btn.dim{opacity:.5}.btn:focus-visible,textarea:focus-visible{outline:1px solid var(--olive);outline-offset:4px}
 .mem{position:fixed;inset:0;overflow:hidden;background:linear-gradient(135deg,var(--blue),var(--olive))}
 .mem img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.mem p{position:absolute;left:8vw;right:8vw;bottom:calc(12vh + env(safe-area-inset-bottom));color:#f6f3ea;font:italic 300 clamp(1.3rem,5vw,2.2rem) 'Cormorant Garamond',serif;text-shadow:0 2px 24px rgba(0,0,0,.5)}
+.mem p{position:absolute;left:8vw;right:8vw;bottom:calc(12vh + env(safe-area-inset-bottom));color:#f6f3ea;font:italic 300 clamp(1.3rem,5vw,2.2rem) 'Cormorant Garamond','Noto Serif Bengali',serif;text-shadow:0 2px 24px rgba(0,0,0,.5)}
 .form{width:min(34rem,100%);text-align:left;max-height:100%;overflow:auto;scrollbar-width:none}
 .form label{display:block;margin-top:1.6rem;opacity:.75;font-size:.95rem}
-textarea{width:100%;min-height:6.5rem;background:transparent;border:0;border-bottom:1px solid rgba(11,11,11,.3);color:inherit;font:300 1.05rem/1.6 Jost,sans-serif;resize:none;padding:.6rem 0;transition:border-color .8s,background .8s}
+textarea{width:100%;min-height:6.5rem;background:transparent;border:0;border-bottom:1px solid rgba(11,11,11,.3);color:inherit;font:300 1.05rem/1.7 Jost,'Noto Serif Bengali',sans-serif;resize:none;padding:.6rem 0;transition:border-color .8s,background .8s}
 textarea:focus{border-color:var(--olive);background:rgba(188,215,238,.18);outline:0}
 .cnt{font-size:.75rem;opacity:.5;text-align:right}
 #snd,#skip{position:fixed;top:max(12px,env(safe-area-inset-top));right:max(12px,env(safe-area-inset-right));z-index:5;background:none;border:0;color:var(--ink);opacity:.35;font-size:1.2rem;width:44px;height:44px;cursor:pointer}
 #skip{right:auto;left:max(12px,env(safe-area-inset-left));font:300 .85rem Jost;letter-spacing:.1em;color:#f6f3ea}
 #admin{position:fixed;inset:0;z-index:50;background:#0b0b0b;color:#f6f3ea;overflow:auto;padding:max(18px,env(safe-area-inset-top)) 18px;font:300 15px/1.6 system-ui,sans-serif}
 #admin[hidden]{display:none}#admin header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem}
-#admin h2{font:300 1.6rem 'Cormorant Garamond',serif}#admin small{color:var(--olive)}
+#admin h2{font:300 1.6rem 'Cormorant Garamond','Noto Serif Bengali',serif}#admin small{color:var(--olive)}
 #admin button{background:#161616;color:inherit;border:1px solid #333;border-radius:4px;padding:.6rem 1rem;font:inherit;cursor:pointer}
 .card{border:1px solid #2a2a2a;border-radius:6px;padding:1rem;margin-bottom:1rem;overflow-wrap:anywhere}
 .card b{display:block;margin-top:.8rem;color:var(--blue);font-weight:400;font-size:.8rem}.card pre{white-space:pre-wrap;font:inherit}
@@ -48,7 +48,7 @@ textarea:focus{border-color:var(--olive);background:rgba(188,215,238,.18);outlin
 // Your Realtime Database. (apiKey is not needed because there is no login.)
 const firebaseConfig={databaseURL:'https://ddwd-1319a-default-rtdb.firebaseio.com',projectId:'ddwd-1319a'};
 // Memories: put image URLs or data: URIs. Leave src '' and the scene still plays as a gradient with its caption.
-const MEMORIES=[{src:'',cap:'the first of many ordinary days'},{src:'',cap:'a laugh I would know anywhere'},{src:'',cap:'somehow, still my favourite view'}];
+const MEMORIES=[{src:'',cap:'অনেক সাধারণ দিনের প্রথমটা'},{src:'',cap:'এই হাসিটা আমি হাজার মানুষের মাঝেও চিনব'},{src:'',cap:'কেন জানি, এখনও আমার সবচেয়ে প্রিয় দৃশ্য'}];
 const MUSIC_URL=''; // optional audio URL; never autoplays
 const ADMIN_GAP_MS=600; // double-P window
 /* ============================================ */
@@ -62,7 +62,9 @@ try{if(firebaseConfig.databaseURL&&!firebaseConfig.databaseURL.includes('YOUR'))
 const save=async p=>{try{FB&&await FB.D.update(FB.D.ref(FB.db,'responses/'+sid),{sessionId:sid,timestamp:Date.now(),...p})}catch(e){console.warn(e)}};
 const log=async(type,x={})=>{try{FB&&await FB.D.push(FB.D.ref(FB.db,`responses/${sid}/events`),{type,t:Date.now(),...x})}catch(e){}};
 /* ---------- Animation helpers ---------- */
-function split(el){const o=[],T=el.textContent.trim();el.textContent='';T.split(' ').forEach(w=>{const s=document.createElement('span');s.className='w';[...w].forEach(c=>{const k=document.createElement('span');k.className='ch';k.textContent=c;s.append(k);o.push(k)});el.append(s,' ')});return o}
+function split(el){const o=[],T=el.textContent.trim();el.textContent='';T.split(' ').forEach(w=>{const s=document.createElement('span');s.className='w';
+ const bn=/[\u0980-\u09FF]/.test(w),parts=bn?[w]:[...w]; /* Bengali: whole word = one unit, so shaping never breaks */
+ parts.forEach(c=>{const k=document.createElement('span');k.className='ch'+(bn?' bn':'');k.textContent=c;s.append(k);o.push(k)});el.append(s,' ')});return o}
 async function reveal(el,{d=1.4,st=.045}={}){const c=split(el);await gsap.fromTo(c,{autoAlpha:0,y:24,filter:'blur(12px)'},{autoAlpha:1,y:0,filter:'blur(0px)',duration:d,stagger:reduce?.01:st,ease:'power3.out'}).then()}
 const fade=(el,d=1.1)=>gsap.to(el,{autoAlpha:0,filter:'blur(10px)',duration:d}).then();
 async function line(text,{hold=2.2,cls='line',d=1.4}={}){const e=document.createElement('p');e.className=cls;e.textContent=text;stage.replaceChildren(e);await reveal(e,{d});await wait(hold);await fade(e)}
@@ -107,44 +109,44 @@ async function opening(){const s=Math.min(innerWidth*.9,460);plant(1,{sizes:[s,s
  await gsap.fromTo(h.children,{autoAlpha:0,letterSpacing:'.8em',filter:'blur(16px)'},{autoAlpha:1,letterSpacing:'.04em',filter:'blur(0)',duration:3,stagger:.25,ease:'power3.out'}).then();
  await wait(2);await fade(h,2);await clearPlants();}
 async function birthday(){const h=big('Happy Birthday');plant(3);await reveal(h,{d:2,st:.07});await wait(3);await fade(h,2);
- const L=['Happy Birthday to someone who is not just special, but genuinely special to me.','আজকে তোমার birthday, but somehow I feel like আজকের দিনটা আমার জন্যও special.','Because today, I want to tell you something I’ve been keeping in my heart.'];
+ const L=['Happy Birthday… এমন একজনকে, যে শুধু special না, সত্যিই আমার কাছে অনেক special.','আজকে তোমার birthday, কিন্তু কেন জানি মনে হচ্ছে আজকের দিনটা আমার জন্যও special.','কারণ আজ আমি তোমাকে এমন একটা কথা বলতে চাই, যেটা অনেকদিন ধরে মনে লুকিয়ে রেখেছি।'];
  for(const t of L)await line(t,{hold:3.2,d:1.8});await clearPlants()}
-async function story(){for(const t of ['I don’t know exactly when it happened...','কখন যে talking to you became something I started looking forward to, honestly I don’t know.','But slowly, you became someone I really care about.','Your smile, your way of talking, even the little things about you...','Somehow, সবকিছুই আমার কাছে special হয়ে গেছে.'])await line(t,{hold:3.2,d:1.8})}
-async function memories(){const list=MEMORIES.filter(m=>m.src);if(!list.length)return;const sk=$('#skip');let skipped=false;sk.hidden=false;sk.onclick=()=>skipped=true;await line('Some moments I still keep.',{hold:2});
+async function story(){for(const t of ['আমি ঠিক জানি না, কখন থেকে...','কখন যে তোমার সাথে কথা বলাটা এমন কিছু হয়ে গেল, যার জন্য আমি অপেক্ষা করি — সত্যি বলছি, আমি নিজেও জানি না।','কিন্তু আস্তে আস্তে তুমি এমন একজন হয়ে গেলে, যাকে আমি সত্যিই অনেক care করি।','তোমার হাসি, তোমার কথা বলার ধরন, এমনকি ছোট ছোট জিনিসগুলোও...','কীভাবে জানি, সবকিছুই আমার কাছে special হয়ে গেছে।'])await line(t,{hold:3.4,d:1.8})}
+async function memories(){const list=MEMORIES.filter(m=>m.src);if(!list.length)return;const sk=$('#skip');let skipped=false;sk.hidden=false;sk.onclick=()=>skipped=true;await line('কিছু মুহূর্ত আমি এখনও যত্ন করে রেখেছি।',{hold:2});
  for(const M of list){if(skipped)break;const m=document.createElement('div');m.className='mem';if(M.src){const i=new Image();i.loading='lazy';i.alt='';i.src=M.src;i.onerror=()=>i.remove();m.append(i)}
   const p=document.createElement('p');p.textContent=M.cap;m.append(p);stage.replaceChildren(m);
   gsap.fromTo(m,{clipPath:'inset(50% 50% 50% 50%)'},{clipPath:'inset(0% 0% 0% 0%)',duration:2.4,ease:'power4.inOut'});
   gsap.fromTo(m.firstChild===p?m:m.firstChild,{scale:1.3,filter:'blur(18px)'},{scale:1,filter:'blur(0px)',duration:7,ease:'power2.out'});
   gsap.from(p,{y:40,autoAlpha:0,duration:2,delay:2.2});for(let i=0;i<60&&!skipped;i++)await wait(.1);await gsap.to(m,{autoAlpha:0,duration:1.4}).then()}sk.hidden=true}
 async function anticipation(){gsap.to(fx,{speed:.25,alpha:0,duration:6});gsap.to('#glow',{opacity:0,duration:3});await theme('#0b0b0b','#f6f3ea',6);
- for(const t of ['And today, on your birthday, I don’t just want to give you a birthday wish.','I want to give you a feeling.','A feeling that says—','You are genuinely important to me.','আমি জানি না future exactly কী হবে,','but I know one thing...','I want you to be a part of it.'])await line(t,{hold:3.4,d:2.2})}
-async function proposal(){for(const t of ['So today...','On your birthday...','I have only one question for you.'])await line(t,{hold:2.8,d:2.2});
+ for(const t of ['আর আজ, তোমার birthday তে, আমি শুধু একটা birthday wish দিতে চাই না।','আমি তোমাকে একটা feeling দিতে চাই।','এমন একটা feeling, যেটা বলে—','তুমি আমার কাছে সত্যিই অনেক important.','Ami jani na future e thik ki hobe,','kintu ekta jinish ami jani...','ami chai tumi tar ekta ongsho hou.'])await line(t,{hold:3.4,d:2.2})}
+async function proposal(){for(const t of ['তো আজ...','তোমার birthday তে...','আমার তোমাকে শুধু একটাই প্রশ্ন আছে।'])await line(t,{hold:2.8,d:2.2});
  const fs=Math.min(innerWidth*.8,420);plant(1,{sizes:[fs,fs],center:true});await wait(9); /* the silence: just a slowly blooming flower */ await clearPlants();
- const q=big('Will you be mine?');await reveal(q,{d:2.6,st:.1});await wait(3.5);await fade(q,2);
- for(const t of ['আমি perfect হওয়ার promise করছি না...','But I can promise one thing—','I’ll always try to make you feel how special you really are to me.','So...'])await line(t,{hold:3,d:2});
+ const q=big('তুমি কি আমার হবে?');await reveal(q,{d:2.6,st:.1});await wait(3.5);await fade(q,2);
+ for(const t of ['Ami perfect howar promise korchi na...','কিন্তু একটা promise আমি করতে পারি—','তুমি আমার কাছে কতটা special, সেটা আমি সবসময় তোমাকে বুঝতে দেওয়ার চেষ্টা করব।','তো...'])await line(t,{hold:3,d:2});
  stage.innerHTML=`<div><div style="position:absolute;inset:0;display:grid;place-items:center">${flower(10,Math.min(innerWidth,520))}</div>
- <h1 class="big" style="position:relative">Will you choose me?</h1><p class="sub" style="position:relative">take all the time you need</p>
- <div class="row" style="position:relative"><button class="btn" data-a="yes">YES</button><button class="btn dim" data-a="no">NO</button></div></div>`;
+ <h1 class="big" style="position:relative">তুমি কি আমাকে বেছে নেবে?</h1><p class="sub" style="position:relative">যত সময় লাগে নাও</p>
+ <div class="row" style="position:relative"><button class="btn" data-a="yes">হ্যাঁ</button><button class="btn dim" data-a="no">না</button></div></div>`;
  const a=stage.firstElementChild,h=$('h1',a),sub=$('.sub',a),bt=[...a.querySelectorAll('.btn')],f=$('svg',a);f.style.opacity=.25;gsap.set([sub,...bt],{autoAlpha:0});
  bloom(f,5);await reveal(h,{d:2.4,st:.09});await gsap.to(sub,{autoAlpha:.7,duration:2}).then();await wait(1);await gsap.to(bt,{autoAlpha:1,duration:1.6,stagger:.3}).then();bt.forEach(magnetic);
  return new Promise(res=>bt.forEach(b=>b.onclick=async()=>{bt.forEach(x=>x.onclick=null);await fade(a,1.6);res(b.dataset.a)}))}
 async function yes(){log('answer',{value:'yes'});save({proposalResponse:'yes'});await theme('#f6f3ea','#0b0b0b',4);gsap.to(fx,{speed:2.5,alpha:1,duration:4});gsap.to('#glow',{opacity:1,duration:3});
  plant(7,{solid:true,sizes:[160,380]});gsap.to('body',{backgroundImage:'radial-gradient(circle at 50% 60%,rgba(107,122,58,.35),rgba(188,215,238,.25) 55%,transparent 80%)',duration:5});
- const h=big('Yes.');await reveal(h,{d:2.4,st:.2});await gsap.fromTo(h,{scale:.9},{scale:1.12,duration:6,ease:'power1.out'}).then();await fade(h,2);
- await line('I am going to remember this exact second for the rest of my life.',{hold:3.6})}
+ const h=big('হ্যাঁ।');await reveal(h,{d:2.4,st:.2});await gsap.fromTo(h,{scale:.9},{scale:1.12,duration:6,ease:'power1.out'}).then();await fade(h,2);
+ await line('এই মুহূর্তটা আমি সারাজীবন মনে রাখব।',{hold:3.6})}
 async function no(){log('answer',{value:'no'});save({proposalResponse:'no'});await theme('#f6f3ea','#0b0b0b',4);gsap.to(fx,{speed:.8,alpha:.8,duration:3});gsap.to('#glow',{opacity:1,duration:3});
- for(const t of ['That is okay. Truly.','An honest answer is a kind of gift too.','Nothing changes about how much you matter to me.','Take all the time you need. Tell me what is on your mind.'])await line(t,{hold:2.9})}
-async function message(){const F=[['finalMessage','Say anything you want me to hear.',2000],['relationshipPreferences','What you like, what you don’t, what you expect, what keeps you happy, your boundaries, small wishes, and things you want remembered — in your own words.',3000]];
- stage.innerHTML=`<div class="form"><p class="line" style="margin-bottom:.5rem">Mohona, now it’s your turn.</p><p class="sub" style="margin:0 0 1rem">No rules. Write as much or as little as you like.</p>
- ${F.map(([k,l,m])=>`<label for="${k}">${l}</label><textarea id="${k}" maxlength="${m}"></textarea><div class="cnt" data-for="${k}">0 / ${m}</div>`).join('')}<div style="text-align:center"><button class="btn" id="send">SEND</button></div></div>`;
+ for(const t of ['ঠিক আছে। সত্যিই।','সৎ উত্তর দেওয়াটাও একটা উপহার।','তুমি আমার কাছে যতটা important, তার কিছুই বদলাবে না।','যত সময় লাগে নাও। তোমার মনের কথাটা আমাকে বলো।'])await line(t,{hold:2.9})}
+async function message(){const F=[['finalMessage','আমাকে যা বলতে চাও, বলো।',2000],['relationshipPreferences','তুমি কী কী পছন্দ করো, কী করো না, আমার কাছে কী আশা করো, কীসে তুমি খুশি থাকো, তোমার boundaries, ছোট ছোট wish, আর কী কী মনে রাখা উচিত — সব তোমার নিজের কথায় লেখো।',3000]];
+ stage.innerHTML=`<div class="form"><p class="line" style="margin-bottom:.5rem">মোহনা, এবার তোমার পালা।</p><p class="sub" style="margin:0 0 1rem">কোনো নিয়ম নেই। যত ইচ্ছা, যেমন ইচ্ছা লেখো।</p>
+ ${F.map(([k,l,m])=>`<label for="${k}">${l}</label><textarea id="${k}" maxlength="${m}"></textarea><div class="cnt" data-for="${k}">0 / ${m}</div>`).join('')}<div style="text-align:center"><button class="btn" id="send">পাঠাও</button></div></div>`;
  const form=stage.firstElementChild;gsap.from(form.children,{autoAlpha:0,y:30,filter:'blur(8px)',duration:1.8,stagger:.2,ease:'power3.out'});
  F.forEach(([k,,m])=>{const t=$('#'+k);t.oninput=()=>{$(`[data-for=${k}]`).textContent=`${t.value.length} / ${m}`;t.style.height='auto';t.style.height=t.scrollHeight+'px'}});
- const b=$('#send');magnetic(b);await new Promise(r=>b.onclick=async()=>{b.disabled=true;b.textContent='SENDING…';
+ const b=$('#send');magnetic(b);await new Promise(r=>b.onclick=async()=>{b.disabled=true;b.textContent='পাঠানো হচ্ছে…';
   await save({finalMessage:$('#finalMessage').value.trim(),relationshipPreferences:$('#relationshipPreferences').value.trim(),submittedAt:Date.now()});log('submitted');await fade(form,1.4);r()})}
-async function received(){stage.innerHTML='<p class="line">Received. Safe with me.</p>';plant(2,{solid:true});await wait(3.5);await fade(stage.firstElementChild,1.5);await clearPlants()}
+async function received(){stage.innerHTML='<p class="line">পেয়ে গেছি। খুব যত্নে থাকবে।</p>';plant(2,{solid:true});await wait(3.5);await fade(stage.firstElementChild,1.5);await clearPlants()}
 async function ending(){theme('#f6f3ea','#0b0b0b',3);gsap.to(fx,{speed:1,alpha:1,duration:3});plant(5,{sizes:[140,300]});
- for(const t of ['Whatever your answer is, today is still your day.','So once again...','Happy Birthday, my special person.','I hope this year gives you everything you’ve been wishing for.','And secretly...','I hope one of those wishes is me. :)'])await line(t,{hold:3.2,d:2});
- const h=big('MOHONA'),s=document.createElement('p');s.className='sub';s.textContent='— Happy Birthday, Mohona.';stage.append(s);h.style.alignSelf='center';s.style.cssText='align-self:end;margin-bottom:12vh';gsap.set(s,{autoAlpha:0});
+ for(const t of ['Tumi ja-i uttor dao, ajker diner ta tobuo tomar.','তো আরেকবার...','Happy Birthday, আমার special মানুষটা।','আমি চাই এই বছরটা তোমাকে সেই সবকিছু দিক, যা তুমি চেয়েছ।','আর চুপি চুপি...','আমি চাই সেই চাওয়াগুলোর একটা যেন আমি হই। :)'])await line(t,{hold:3.2,d:2});
+ const h=big('MOHONA'),s=document.createElement('p');s.className='sub';s.textContent='শুভ জন্মদিন, Mohona।';stage.append(s);h.style.alignSelf='center';s.style.cssText='align-self:end;margin-bottom:12vh';gsap.set(s,{autoAlpha:0});
  await gsap.fromTo(h,{autoAlpha:0,letterSpacing:'.8em',filter:'blur(16px)'},{autoAlpha:1,letterSpacing:'.08em',filter:'blur(0)',duration:5,ease:'power3.out'}).then();
  await gsap.to(s,{autoAlpha:.7,duration:3}).then();await wait(7);gsap.to([h,s,'#snd'],{autoAlpha:0,duration:6})}
 (async()=>{await document.fonts.ready;log('visit');await opening();await birthday();await story();await memories();await anticipation();
