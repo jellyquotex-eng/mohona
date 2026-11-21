@@ -45,8 +45,8 @@ textarea:focus{border-color:var(--olive);background:rgba(188,215,238,.18);outlin
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script type="module">
 /* ============ CONFIG — edit here ============ */
-// ▼ PASTE YOUR FIREBASE CONFIG (Console → Project settings → Your apps). Site still runs without it; nothing is saved.
-const firebaseConfig={apiKey:'YOUR_API_KEY',authDomain:'YOUR_PROJECT.firebaseapp.com',databaseURL:'https://YOUR_PROJECT-default-rtdb.firebaseio.com',projectId:'YOUR_PROJECT',appId:'YOUR_APP_ID'};
+// Your Realtime Database. (apiKey is not needed because there is no login.)
+const firebaseConfig={databaseURL:'https://ddwd-1319a-default-rtdb.firebaseio.com',projectId:'ddwd-1319a'};
 // Memories: put image URLs or data: URIs. Leave src '' and the scene still plays as a gradient with its caption.
 const MEMORIES=[{src:'',cap:'the first of many ordinary days'},{src:'',cap:'a laugh I would know anywhere'},{src:'',cap:'somehow, still my favourite view'}];
 const MUSIC_URL=''; // optional audio URL; never autoplays
@@ -57,7 +57,7 @@ const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const wait=s=>new Promise(r=>setTimeout(r,s*1000*(reduce?.4:1)));
 /* ---------- Firebase (RTDB, no login) ---------- */
 let FB=null;const sid=localStorage.mohonaSid||(localStorage.mohonaSid=crypto.randomUUID());
-try{if(!firebaseConfig.apiKey.startsWith('YOUR')){const A=await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js'),D=await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js');
+try{if(firebaseConfig.databaseURL&&!firebaseConfig.databaseURL.includes('YOUR')){const A=await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js'),D=await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js');
  FB={D,db:D.getDatabase(A.initializeApp(firebaseConfig))}}}catch(e){console.warn('Firebase unavailable',e)}
 const save=async p=>{try{FB&&await FB.D.update(FB.D.ref(FB.db,'responses/'+sid),{sessionId:sid,timestamp:Date.now(),...p})}catch(e){console.warn(e)}};
 const log=async(type,x={})=>{try{FB&&await FB.D.push(FB.D.ref(FB.db,`responses/${sid}/events`),{type,t:Date.now(),...x})}catch(e){}};
@@ -105,22 +105,25 @@ $('#close').onclick=()=>{$('#admin').hidden=true;offDb?.();offDb=null};addEventL
 async function opening(){const s=Math.min(innerWidth*.9,460);plant(1,{sizes:[s,s],center:true});await wait(2);
  const h=big('');h.innerHTML=[...'MOHONA'].map(c=>`<span class="ch">${c}</span>`).join('');
  await gsap.fromTo(h.children,{autoAlpha:0,letterSpacing:'.8em',filter:'blur(16px)'},{autoAlpha:1,letterSpacing:'.04em',filter:'blur(0)',duration:3,stagger:.25,ease:'power3.out'}).then();
- await wait(2);await fade(h,2);await clearPlants();await line('Somebody built a small world for you today.',{hold:2.4})}
+ await wait(2);await fade(h,2);await clearPlants();}
 async function birthday(){const h=big('Happy Birthday');plant(3);await reveal(h,{d:2,st:.07});await wait(3);await fade(h,2);
- await line('Another year of you being exactly who you are.',{hold:2.4});await line('The world got softer the day you showed up.',{hold:2.4});await line('আজ শুধু তোমার দিন।',{hold:2.4});await clearPlants()}
-async function story(){for(const t of ['I notice things about you that you probably don’t know I notice.','The way you go quiet when something matters.','The way black looks like it was invented for you.','Some people feel like home before you even have the word for it.'])await line(t,{hold:2.6})}
-async function memories(){const sk=$('#skip');let skipped=false;sk.hidden=false;sk.onclick=()=>skipped=true;await line('Let me show you a few things I keep.',{hold:2});
- for(const M of MEMORIES){if(skipped)break;const m=document.createElement('div');m.className='mem';if(M.src){const i=new Image();i.loading='lazy';i.alt='';i.src=M.src;i.onerror=()=>i.remove();m.append(i)}
+ const L=['Happy Birthday to someone who is not just special, but genuinely special to me.','আজকে তোমার birthday, but somehow I feel like আজকের দিনটা আমার জন্যও special.','Because today, I want to tell you something I’ve been keeping in my heart.'];
+ for(const t of L)await line(t,{hold:3.2,d:1.8});await clearPlants()}
+async function story(){for(const t of ['I don’t know exactly when it happened...','কখন যে talking to you became something I started looking forward to, honestly I don’t know.','But slowly, you became someone I really care about.','Your smile, your way of talking, even the little things about you...','Somehow, সবকিছুই আমার কাছে special হয়ে গেছে.'])await line(t,{hold:3.2,d:1.8})}
+async function memories(){const list=MEMORIES.filter(m=>m.src);if(!list.length)return;const sk=$('#skip');let skipped=false;sk.hidden=false;sk.onclick=()=>skipped=true;await line('Some moments I still keep.',{hold:2});
+ for(const M of list){if(skipped)break;const m=document.createElement('div');m.className='mem';if(M.src){const i=new Image();i.loading='lazy';i.alt='';i.src=M.src;i.onerror=()=>i.remove();m.append(i)}
   const p=document.createElement('p');p.textContent=M.cap;m.append(p);stage.replaceChildren(m);
   gsap.fromTo(m,{clipPath:'inset(50% 50% 50% 50%)'},{clipPath:'inset(0% 0% 0% 0%)',duration:2.4,ease:'power4.inOut'});
   gsap.fromTo(m.firstChild===p?m:m.firstChild,{scale:1.3,filter:'blur(18px)'},{scale:1,filter:'blur(0px)',duration:7,ease:'power2.out'});
   gsap.from(p,{y:40,autoAlpha:0,duration:2,delay:2.2});for(let i=0;i<60&&!skipped;i++)await wait(.1);await gsap.to(m,{autoAlpha:0,duration:1.4}).then()}sk.hidden=true}
 async function anticipation(){gsap.to(fx,{speed:.25,alpha:0,duration:6});gsap.to('#glow',{opacity:0,duration:3});await theme('#0b0b0b','#f6f3ea',6);
- for(const t of ['Okay.','Now I need you to stay with me for a moment.','Breathe.','Something has been waiting a long time to be said.'])await line(t,{hold:3.4,d:2.2})}
-async function proposal(){await line('Mohona.',{cls:'big',hold:2.5,d:2.4});
- for(const t of ['I have rehearsed this more times than I will ever admit.','Every version sounded smaller than what I actually feel.','So — no speech. Just the truth.','তুমি আমার সবচেয়ে প্রিয় মানুষ।','And today, I want more than to wish you another year.'])await line(t,{hold:2.8});
+ for(const t of ['And today, on your birthday, I don’t just want to give you a birthday wish.','I want to give you a feeling.','A feeling that says—','You are genuinely important to me.','আমি জানি না future exactly কী হবে,','but I know one thing...','I want you to be a part of it.'])await line(t,{hold:3.4,d:2.2})}
+async function proposal(){for(const t of ['So today...','On your birthday...','I have only one question for you.'])await line(t,{hold:2.8,d:2.2});
+ const fs=Math.min(innerWidth*.8,420);plant(1,{sizes:[fs,fs],center:true});await wait(9); /* the silence: just a slowly blooming flower */ await clearPlants();
+ const q=big('Will you be mine?');await reveal(q,{d:2.6,st:.1});await wait(3.5);await fade(q,2);
+ for(const t of ['আমি perfect হওয়ার promise করছি না...','But I can promise one thing—','I’ll always try to make you feel how special you really are to me.','So...'])await line(t,{hold:3,d:2});
  stage.innerHTML=`<div><div style="position:absolute;inset:0;display:grid;place-items:center">${flower(10,Math.min(innerWidth,520))}</div>
- <h1 class="big" style="position:relative">Will you be mine?</h1><p class="sub" style="position:relative">for all the ordinary, beautiful days that come after this one</p>
+ <h1 class="big" style="position:relative">Will you choose me?</h1><p class="sub" style="position:relative">take all the time you need</p>
  <div class="row" style="position:relative"><button class="btn" data-a="yes">YES</button><button class="btn dim" data-a="no">NO</button></div></div>`;
  const a=stage.firstElementChild,h=$('h1',a),sub=$('.sub',a),bt=[...a.querySelectorAll('.btn')],f=$('svg',a);f.style.opacity=.25;gsap.set([sub,...bt],{autoAlpha:0});
  bloom(f,5);await reveal(h,{d:2.4,st:.09});await gsap.to(sub,{autoAlpha:.7,duration:2}).then();await wait(1);await gsap.to(bt,{autoAlpha:1,duration:1.6,stagger:.3}).then();bt.forEach(magnetic);
@@ -140,8 +143,8 @@ async function message(){const F=[['finalMessage','Say anything you want me to h
   await save({finalMessage:$('#finalMessage').value.trim(),relationshipPreferences:$('#relationshipPreferences').value.trim(),submittedAt:Date.now()});log('submitted');await fade(form,1.4);r()})}
 async function received(){stage.innerHTML='<p class="line">Received. Safe with me.</p>';plant(2,{solid:true});await wait(3.5);await fade(stage.firstElementChild,1.5);await clearPlants()}
 async function ending(){theme('#f6f3ea','#0b0b0b',3);gsap.to(fx,{speed:1,alpha:1,duration:3});plant(5,{sizes:[140,300]});
- await line('Some stories do not need a last page.',{hold:2.6});await line('They just keep choosing each other, quietly, every day.',{hold:3});
- const h=big('MOHONA'),s=document.createElement('p');s.className='sub';s.textContent='— and that was only the beginning.';stage.append(s);h.style.alignSelf='center';s.style.cssText='align-self:end;margin-bottom:12vh';gsap.set(s,{autoAlpha:0});
+ for(const t of ['Whatever your answer is, today is still your day.','So once again...','Happy Birthday, my special person.','I hope this year gives you everything you’ve been wishing for.','And secretly...','I hope one of those wishes is me. :)'])await line(t,{hold:3.2,d:2});
+ const h=big('MOHONA'),s=document.createElement('p');s.className='sub';s.textContent='— Happy Birthday, Mohona.';stage.append(s);h.style.alignSelf='center';s.style.cssText='align-self:end;margin-bottom:12vh';gsap.set(s,{autoAlpha:0});
  await gsap.fromTo(h,{autoAlpha:0,letterSpacing:'.8em',filter:'blur(16px)'},{autoAlpha:1,letterSpacing:'.08em',filter:'blur(0)',duration:5,ease:'power3.out'}).then();
  await gsap.to(s,{autoAlpha:.7,duration:3}).then();await wait(7);gsap.to([h,s,'#snd'],{autoAlpha:0,duration:6})}
 (async()=>{await document.fonts.ready;log('visit');await opening();await birthday();await story();await memories();await anticipation();
