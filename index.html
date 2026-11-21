@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>For Mohona</title><meta name="theme-color" content="#f6f3ea"><meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;1,300&family=Jost:wght@300&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f6f3ea;--ink:#0b0b0b;--olive:#6b7a3a;--blue:#bcd7ee}
+*{box-sizing:border-box;margin:0}html,body{height:100%;overflow:hidden;overscroll-behavior:none}
+body{background:var(--bg);color:var(--ink);font:300 1rem Jost,sans-serif}
+#fx,#fl,#glow{position:fixed;inset:0;width:100%;height:100%;pointer-events:none}
+#glow{background:radial-gradient(circle 260px at var(--x,50%) var(--y,50%),rgba(188,215,238,.4),transparent)}
+#fl .fl{position:absolute;opacity:.55;will-change:transform}
+#stage{position:fixed;inset:0;display:grid;place-items:center;text-align:center;
+ padding:max(7vw,env(safe-area-inset-top)) max(7vw,env(safe-area-inset-right)) max(7vw,env(safe-area-inset-bottom)) max(7vw,env(safe-area-inset-left))}
+#stage>*{grid-area:1/1;max-width:100%}
+.line{font:italic 300 clamp(1.6rem,6vw,3.2rem)/1.35 'Cormorant Garamond',serif;max-width:19em}
+.big{font:300 clamp(2.4rem,13vw,8.5rem)/1 'Cormorant Garamond',serif;letter-spacing:.04em}
+.sub{margin-top:1.4rem;opacity:.7;letter-spacing:.06em}
+.w{display:inline-block;white-space:nowrap}.ch{display:inline-block;will-change:transform,opacity,filter}
+.row{display:flex;gap:2.2rem;justify-content:center;margin-top:3rem}
+.btn{background:none;border:0;border-bottom:1px solid currentColor;color:inherit;font:300 1.15rem Jost,sans-serif;letter-spacing:.2em;padding:1rem 1.4rem;min-height:48px;min-width:96px;cursor:pointer;touch-action:manipulation}
+.btn.dim{opacity:.5}.btn:focus-visible,textarea:focus-visible{outline:1px solid var(--olive);outline-offset:4px}
+.mem{position:fixed;inset:0;overflow:hidden;background:linear-gradient(135deg,var(--blue),var(--olive))}
+.mem img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.mem p{position:absolute;left:8vw;right:8vw;bottom:calc(12vh + env(safe-area-inset-bottom));color:#f6f3ea;font:italic 300 clamp(1.3rem,5vw,2.2rem) 'Cormorant Garamond',serif;text-shadow:0 2px 24px rgba(0,0,0,.5)}
+.form{width:min(34rem,100%);text-align:left;max-height:100%;overflow:auto;scrollbar-width:none}
+.form label{display:block;margin-top:1.6rem;opacity:.75;font-size:.95rem}
+textarea{width:100%;min-height:6.5rem;background:transparent;border:0;border-bottom:1px solid rgba(11,11,11,.3);color:inherit;font:300 1.05rem/1.6 Jost,sans-serif;resize:none;padding:.6rem 0;transition:border-color .8s,background .8s}
+textarea:focus{border-color:var(--olive);background:rgba(188,215,238,.18);outline:0}
+.cnt{font-size:.75rem;opacity:.5;text-align:right}
+#snd,#skip{position:fixed;top:max(12px,env(safe-area-inset-top));right:max(12px,env(safe-area-inset-right));z-index:5;background:none;border:0;color:var(--ink);opacity:.35;font-size:1.2rem;width:44px;height:44px;cursor:pointer}
+#skip{right:auto;left:max(12px,env(safe-area-inset-left));font:300 .85rem Jost;letter-spacing:.1em;color:#f6f3ea}
+#admin{position:fixed;inset:0;z-index:50;background:#0b0b0b;color:#f6f3ea;overflow:auto;padding:max(18px,env(safe-area-inset-top)) 18px;font:300 15px/1.6 system-ui,sans-serif}
+#admin[hidden]{display:none}#admin header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem}
+#admin h2{font:300 1.6rem 'Cormorant Garamond',serif}#admin small{color:var(--olive)}
+#admin button{background:#161616;color:inherit;border:1px solid #333;border-radius:4px;padding:.6rem 1rem;font:inherit;cursor:pointer}
+.card{border:1px solid #2a2a2a;border-radius:6px;padding:1rem;margin-bottom:1rem;overflow-wrap:anywhere}
+.card b{display:block;margin-top:.8rem;color:var(--blue);font-weight:400;font-size:.8rem}.card pre{white-space:pre-wrap;font:inherit}
+.s{display:inline-block;padding:.1rem .8rem;border-radius:99px;background:#333}.s.yes{background:var(--olive)}.s.no{background:#555}
+</style></head><body>
+<canvas id="fx"></canvas><div id="fl"></div><div id="glow"></div><main id="stage"></main>
+<button id="snd" aria-label="Toggle music">♪</button><button id="skip" hidden>skip</button>
+<section id="admin" hidden><header><h2>Responses <small id="st">live</small></h2><button id="close">Close</button></header><div id="list"></div></section>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script type="module">
+/* ============ CONFIG — edit here ============ */
+// ▼ PASTE YOUR FIREBASE CONFIG (Console → Project settings → Your apps). Site still runs without it; nothing is saved.
+const firebaseConfig={apiKey:'YOUR_API_KEY',authDomain:'YOUR_PROJECT.firebaseapp.com',databaseURL:'https://YOUR_PROJECT-default-rtdb.firebaseio.com',projectId:'YOUR_PROJECT',appId:'YOUR_APP_ID'};
+// Memories: put image URLs or data: URIs. Leave src '' and the scene still plays as a gradient with its caption.
+const MEMORIES=[{src:'',cap:'the first of many ordinary days'},{src:'',cap:'a laugh I would know anywhere'},{src:'',cap:'somehow, still my favourite view'}];
+const MUSIC_URL=''; // optional audio URL; never autoplays
+const ADMIN_GAP_MS=600; // double-P window
+/* ============================================ */
+const $=(s,r=document)=>r.querySelector(s),stage=$('#stage'),root=document.documentElement;
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const wait=s=>new Promise(r=>setTimeout(r,s*1000*(reduce?.4:1)));
+/* ---------- Firebase (RTDB, no login) ---------- */
+let FB=null;const sid=localStorage.mohonaSid||(localStorage.mohonaSid=crypto.randomUUID());
+try{if(!firebaseConfig.apiKey.startsWith('YOUR')){const A=await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js'),D=await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js');
+ FB={D,db:D.getDatabase(A.initializeApp(firebaseConfig))}}}catch(e){console.warn('Firebase unavailable',e)}
+const save=async p=>{try{FB&&await FB.D.update(FB.D.ref(FB.db,'responses/'+sid),{sessionId:sid,timestamp:Date.now(),...p})}catch(e){console.warn(e)}};
+const log=async(type,x={})=>{try{FB&&await FB.D.push(FB.D.ref(FB.db,`responses/${sid}/events`),{type,t:Date.now(),...x})}catch(e){}};
+/* ---------- Animation helpers ---------- */
+function split(el){const o=[],T=el.textContent.trim();el.textContent='';T.split(' ').forEach(w=>{const s=document.createElement('span');s.className='w';[...w].forEach(c=>{const k=document.createElement('span');k.className='ch';k.textContent=c;s.append(k);o.push(k)});el.append(s,' ')});return o}
+async function reveal(el,{d=1.4,st=.045}={}){const c=split(el);await gsap.fromTo(c,{autoAlpha:0,y:24,filter:'blur(12px)'},{autoAlpha:1,y:0,filter:'blur(0px)',duration:d,stagger:reduce?.01:st,ease:'power3.out'}).then()}
+const fade=(el,d=1.1)=>gsap.to(el,{autoAlpha:0,filter:'blur(10px)',duration:d}).then();
+async function line(text,{hold=2.2,cls='line',d=1.4}={}){const e=document.createElement('p');e.className=cls;e.textContent=text;stage.replaceChildren(e);await reveal(e,{d});await wait(hold);await fade(e)}
+const big=t=>{const h=document.createElement('h1');h.className='big';h.textContent=t;stage.replaceChildren(h);return h};
+function flower(n=8,size=220,solid=false){let p='';for(let i=0;i<n;i++)p+=`<path pathLength="1" d="M0 0C-18-30-14-70 0-90C14-70 18-30 0 0Z" transform="rotate(${i*360/n})"/>`;
+ return `<svg class="fl" viewBox="-100 -100 200 200" width="${size}" height="${size}" fill="${solid?'#0b0b0b':'none'}" fill-opacity="0" stroke="#0b0b0b" stroke-width=".7">${p}<circle r="5" pathLength="1"/></svg>`}
+function bloom(svg,d=3,solid=false){const ps=svg.querySelectorAll('path,circle'),t=gsap.timeline();
+ t.fromTo(ps,{strokeDasharray:1,strokeDashoffset:1},{strokeDashoffset:0,duration:d,stagger:.15,ease:'power2.inOut'});if(solid)t.to(ps,{fillOpacity:.85,duration:2},'-=1.5');
+ gsap.to(svg,{rotation:'+=25',duration:40,repeat:-1,ease:'none'});return t}
+function plant(n,{solid=false,sizes=[120,320],center=false}={}){const L=$('#fl');for(let i=0;i<n;i++){const s=sizes[0]+Math.random()*(sizes[1]-sizes[0]);
+ L.insertAdjacentHTML('beforeend',flower(5+(Math.random()*4|0),s,solid));const f=L.lastElementChild;
+ f.style.left=(center?innerWidth/2-s/2:Math.random()*(innerWidth-s*.5)-s*.25)+'px';f.style.top=(center?innerHeight/2-s/2:Math.random()*(innerHeight-s*.5)-s*.25)+'px';
+ gsap.set(f,{rotation:Math.random()*360});bloom(f,3+Math.random()*2,solid)}}
+const clearPlants=()=>gsap.to('#fl .fl',{opacity:0,duration:2.5,onComplete:()=>($('#fl').innerHTML='')}).then();
+function magnetic(b){b.addEventListener('pointermove',e=>{const r=b.getBoundingClientRect();gsap.to(b,{x:(e.clientX-r.left-r.width/2)*.25,y:(e.clientY-r.top-r.height/2)*.25,duration:.4})});
+ b.addEventListener('pointerleave',()=>gsap.to(b,{x:0,y:0,duration:.8,ease:'elastic.out(1,.5)'}))}
+function petals(cv,count){const x=cv.getContext('2d'),col=['#0b0b0b','#6b7a3a','#a9cdea'];let w,h,P=[],run=true;
+ const rs=()=>{w=cv.width=innerWidth;h=cv.height=innerHeight};rs();addEventListener('resize',rs);
+ const mk=y=>({x:Math.random()*w,y,r:3+Math.random()*5,v:.3+Math.random()*.6,s:Math.random()*6,c:col[Math.random()*3|0]});
+ for(let i=0;i<count;i++)P.push(mk(Math.random()*h));const api={speed:1,alpha:1};
+ document.addEventListener('visibilitychange',()=>{run=!document.hidden;if(run)loop()});
+ function loop(){if(!run)return;x.clearRect(0,0,w,h);for(const p of P){p.y+=p.v*api.speed;p.s+=.01;p.x+=Math.sin(p.s)*.5;if(p.y>h+20)Object.assign(p,mk(-20));
+  x.globalAlpha=api.alpha*.55;x.fillStyle=p.c;x.beginPath();x.ellipse(p.x,p.y,p.r,p.r*.5,p.s,0,7);x.fill()}requestAnimationFrame(loop)}loop();return api}
+const fx=petals($('#fx'),reduce?8:Math.min(36,innerWidth<600?22:36));
+const theme=(bg,ink,d=3)=>gsap.to(root,{'--bg':bg,'--ink':ink,duration:d,ease:'power1.inOut'}).then();
+addEventListener('pointermove',e=>{root.style.setProperty('--x',e.clientX+'px');root.style.setProperty('--y',e.clientY+'px')},{passive:true});
+/* audio + admin shortcut */
+const aud=new Audio();if(MUSIC_URL){aud.src=MUSIC_URL;aud.loop=true}$('#snd').onclick=()=>MUSIC_URL&&(aud.paused?aud.play().catch(()=>{}):aud.pause());
+let lp=0;addEventListener('keydown',e=>{if(e.key.toLowerCase()!=='p'||e.repeat||/INPUT|TEXTAREA/.test(e.target.tagName))return;const n=Date.now();
+ if(n-lp<ADMIN_GAP_MS){lp=0;openAdmin()}else lp=n});
+let offDb=null;function openAdmin(){$('#admin').hidden=false;if(!FB){$('#list').textContent='Firebase config not set.';return}
+ offDb?.();offDb=FB.D.onValue(FB.D.ref(FB.db,'responses'),s=>{const L=$('#list');L.replaceChildren();const d=s.val();if(!d){L.textContent='No sessions yet.';return}
+  Object.values(d).sort((a,b)=>(b.timestamp||0)-(a.timestamp||0)).forEach(r=>{const c=document.createElement('div');c.className='card';
+   const row=(k,v)=>{const b=document.createElement('b');b.textContent=k;const p=document.createElement('pre');p.textContent=v||'—';c.append(b,p)};
+   const s=document.createElement('span');s.className='s '+(r.proposalResponse||'');s.textContent=(r.proposalResponse||'not answered').toUpperCase();c.append(s);
+   row('Timestamp',r.timestamp?new Date(r.timestamp).toLocaleString():'');row('Session ID',r.sessionId);row("Mohona's final message",r.finalMessage);row('Requests / preferences',r.relationshipPreferences);
+   row('Events',Object.values(r.events||{}).map(e=>new Date(e.t).toLocaleTimeString()+' '+e.type+(e.value?': '+e.value:'')).join('\n'));L.append(c)})},e=>{$('#list').textContent='Read denied by database rules.'})}
+$('#close').onclick=()=>{$('#admin').hidden=true;offDb?.();offDb=null};addEventListener('keydown',e=>e.key==='Escape'&&$('#close').click());
+/* ---------- Scenes ---------- */
+async function opening(){const s=Math.min(innerWidth*.9,460);plant(1,{sizes:[s,s],center:true});await wait(2);
+ const h=big('');h.innerHTML=[...'MOHONA'].map(c=>`<span class="ch">${c}</span>`).join('');
+ await gsap.fromTo(h.children,{autoAlpha:0,letterSpacing:'.8em',filter:'blur(16px)'},{autoAlpha:1,letterSpacing:'.04em',filter:'blur(0)',duration:3,stagger:.25,ease:'power3.out'}).then();
+ await wait(2);await fade(h,2);await clearPlants();await line('Somebody built a small world for you today.',{hold:2.4})}
+async function birthday(){const h=big('Happy Birthday');plant(3);await reveal(h,{d:2,st:.07});await wait(3);await fade(h,2);
+ await line('Another year of you being exactly who you are.',{hold:2.4});await line('The world got softer the day you showed up.',{hold:2.4});await line('আজ শুধু তোমার দিন।',{hold:2.4});await clearPlants()}
+async function story(){for(const t of ['I notice things about you that you probably don’t know I notice.','The way you go quiet when something matters.','The way black looks like it was invented for you.','Some people feel like home before you even have the word for it.'])await line(t,{hold:2.6})}
+async function memories(){const sk=$('#skip');let skipped=false;sk.hidden=false;sk.onclick=()=>skipped=true;await line('Let me show you a few things I keep.',{hold:2});
+ for(const M of MEMORIES){if(skipped)break;const m=document.createElement('div');m.className='mem';if(M.src){const i=new Image();i.loading='lazy';i.alt='';i.src=M.src;i.onerror=()=>i.remove();m.append(i)}
+  const p=document.createElement('p');p.textContent=M.cap;m.append(p);stage.replaceChildren(m);
+  gsap.fromTo(m,{clipPath:'inset(50% 50% 50% 50%)'},{clipPath:'inset(0% 0% 0% 0%)',duration:2.4,ease:'power4.inOut'});
+  gsap.fromTo(m.firstChild===p?m:m.firstChild,{scale:1.3,filter:'blur(18px)'},{scale:1,filter:'blur(0px)',duration:7,ease:'power2.out'});
+  gsap.from(p,{y:40,autoAlpha:0,duration:2,delay:2.2});for(let i=0;i<60&&!skipped;i++)await wait(.1);await gsap.to(m,{autoAlpha:0,duration:1.4}).then()}sk.hidden=true}
+async function anticipation(){gsap.to(fx,{speed:.25,alpha:0,duration:6});gsap.to('#glow',{opacity:0,duration:3});await theme('#0b0b0b','#f6f3ea',6);
+ for(const t of ['Okay.','Now I need you to stay with me for a moment.','Breathe.','Something has been waiting a long time to be said.'])await line(t,{hold:3.4,d:2.2})}
+async function proposal(){await line('Mohona.',{cls:'big',hold:2.5,d:2.4});
+ for(const t of ['I have rehearsed this more times than I will ever admit.','Every version sounded smaller than what I actually feel.','So — no speech. Just the truth.','তুমি আমার সবচেয়ে প্রিয় মানুষ।','And today, I want more than to wish you another year.'])await line(t,{hold:2.8});
+ stage.innerHTML=`<div><div style="position:absolute;inset:0;display:grid;place-items:center">${flower(10,Math.min(innerWidth,520))}</div>
+ <h1 class="big" style="position:relative">Will you be mine?</h1><p class="sub" style="position:relative">for all the ordinary, beautiful days that come after this one</p>
+ <div class="row" style="position:relative"><button class="btn" data-a="yes">YES</button><button class="btn dim" data-a="no">NO</button></div></div>`;
+ const a=stage.firstElementChild,h=$('h1',a),sub=$('.sub',a),bt=[...a.querySelectorAll('.btn')],f=$('svg',a);f.style.opacity=.25;gsap.set([sub,...bt],{autoAlpha:0});
+ bloom(f,5);await reveal(h,{d:2.4,st:.09});await gsap.to(sub,{autoAlpha:.7,duration:2}).then();await wait(1);await gsap.to(bt,{autoAlpha:1,duration:1.6,stagger:.3}).then();bt.forEach(magnetic);
+ return new Promise(res=>bt.forEach(b=>b.onclick=async()=>{bt.forEach(x=>x.onclick=null);await fade(a,1.6);res(b.dataset.a)}))}
+async function yes(){log('answer',{value:'yes'});save({proposalResponse:'yes'});await theme('#f6f3ea','#0b0b0b',4);gsap.to(fx,{speed:2.5,alpha:1,duration:4});gsap.to('#glow',{opacity:1,duration:3});
+ plant(7,{solid:true,sizes:[160,380]});gsap.to('body',{backgroundImage:'radial-gradient(circle at 50% 60%,rgba(107,122,58,.35),rgba(188,215,238,.25) 55%,transparent 80%)',duration:5});
+ const h=big('Yes.');await reveal(h,{d:2.4,st:.2});await gsap.fromTo(h,{scale:.9},{scale:1.12,duration:6,ease:'power1.out'}).then();await fade(h,2);
+ await line('I am going to remember this exact second for the rest of my life.',{hold:3.6})}
+async function no(){log('answer',{value:'no'});save({proposalResponse:'no'});await theme('#f6f3ea','#0b0b0b',4);gsap.to(fx,{speed:.8,alpha:.8,duration:3});gsap.to('#glow',{opacity:1,duration:3});
+ for(const t of ['That is okay. Truly.','An honest answer is a kind of gift too.','Nothing changes about how much you matter to me.','Take all the time you need. Tell me what is on your mind.'])await line(t,{hold:2.9})}
+async function message(){const F=[['finalMessage','Say anything you want me to hear.',2000],['relationshipPreferences','What you like, what you don’t, what you expect, what keeps you happy, your boundaries, small wishes, and things you want remembered — in your own words.',3000]];
+ stage.innerHTML=`<div class="form"><p class="line" style="margin-bottom:.5rem">Mohona, now it’s your turn.</p><p class="sub" style="margin:0 0 1rem">No rules. Write as much or as little as you like.</p>
+ ${F.map(([k,l,m])=>`<label for="${k}">${l}</label><textarea id="${k}" maxlength="${m}"></textarea><div class="cnt" data-for="${k}">0 / ${m}</div>`).join('')}<div style="text-align:center"><button class="btn" id="send">SEND</button></div></div>`;
+ const form=stage.firstElementChild;gsap.from(form.children,{autoAlpha:0,y:30,filter:'blur(8px)',duration:1.8,stagger:.2,ease:'power3.out'});
+ F.forEach(([k,,m])=>{const t=$('#'+k);t.oninput=()=>{$(`[data-for=${k}]`).textContent=`${t.value.length} / ${m}`;t.style.height='auto';t.style.height=t.scrollHeight+'px'}});
+ const b=$('#send');magnetic(b);await new Promise(r=>b.onclick=async()=>{b.disabled=true;b.textContent='SENDING…';
+  await save({finalMessage:$('#finalMessage').value.trim(),relationshipPreferences:$('#relationshipPreferences').value.trim(),submittedAt:Date.now()});log('submitted');await fade(form,1.4);r()})}
+async function received(){stage.innerHTML='<p class="line">Received. Safe with me.</p>';plant(2,{solid:true});await wait(3.5);await fade(stage.firstElementChild,1.5);await clearPlants()}
+async function ending(){theme('#f6f3ea','#0b0b0b',3);gsap.to(fx,{speed:1,alpha:1,duration:3});plant(5,{sizes:[140,300]});
+ await line('Some stories do not need a last page.',{hold:2.6});await line('They just keep choosing each other, quietly, every day.',{hold:3});
+ const h=big('MOHONA'),s=document.createElement('p');s.className='sub';s.textContent='— and that was only the beginning.';stage.append(s);h.style.alignSelf='center';s.style.cssText='align-self:end;margin-bottom:12vh';gsap.set(s,{autoAlpha:0});
+ await gsap.fromTo(h,{autoAlpha:0,letterSpacing:'.8em',filter:'blur(16px)'},{autoAlpha:1,letterSpacing:'.08em',filter:'blur(0)',duration:5,ease:'power3.out'}).then();
+ await gsap.to(s,{autoAlpha:.7,duration:3}).then();await wait(7);gsap.to([h,s,'#snd'],{autoAlpha:0,duration:6})}
+(async()=>{await document.fonts.ready;log('visit');await opening();await birthday();await story();await memories();await anticipation();
+ const a=await proposal();await(a==='yes'?yes():no());await message();await received();await ending()})();
+</script></body></html>
