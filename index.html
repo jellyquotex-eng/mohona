@@ -102,9 +102,12 @@ addEventListener('pointermove',e=>{root.style.setProperty('--x',e.clientX+'px');
 const SONGS=['Ishq Bulaava (Lyrics) _ Hasee Toh Phasee _ Parineeti _ Sidharth _ Sanam Puri _ shipra Goyal..mp3','song.mp3'].map(encodeURI);
 const aud=new Audio();aud.loop=true;aud.preload='auto';let si=0,started=false;
 const nextSong=()=>{if(si<SONGS.length){aud.src=SONGS[si++];if(started)aud.play().catch(()=>{})}};aud.onerror=nextSong;nextSong();
-const startSong=()=>{if(started)return;started=true;aud.volume=.85;aud.play().catch(()=>{started=false})};
+const acc=new Audio(encodeURI('SaveTik.io_7710109764482583829.mp3'));acc.preload='auto';let special=false; /* plays once when she accepts */
+const startSong=()=>{if(started)return;started=true;aud.volume=.85;aud.play().catch(()=>{started=false});
+ acc.muted=true;acc.play().then(()=>{acc.pause();acc.currentTime=0;acc.muted=false}).catch(()=>{acc.muted=false})}; /* unlock for iOS */
+function acceptSong(){special=true;aud.pause();acc.currentTime=0;const back=()=>{special=false;if(started&&!document.hidden)aud.play().catch(()=>{})};acc.onended=back;acc.onerror=back;acc.play().catch(back)}
 ['click','touchend','keydown'].forEach(t=>addEventListener(t,startSong,{passive:true}));
-document.addEventListener('visibilitychange',()=>{document.hidden?aud.pause():started&&aud.play().catch(()=>{})});
+document.addEventListener('visibilitychange',()=>{if(document.hidden){aud.pause();acc.pause()}else if(started)(special?acc:aud).play().catch(()=>{})});
 let lp=0;addEventListener('keydown',e=>{if(e.key.toLowerCase()!=='p'||e.repeat||/INPUT|TEXTAREA/.test(e.target.tagName))return;const n=Date.now();
  if(n-lp<ADMIN_GAP_MS){lp=0;openAdmin()}else lp=n});
 let offDb=null;function openAdmin(){$('#admin').hidden=false;if(!FB){$('#list').textContent='Firebase config not set.';return}
@@ -158,7 +161,7 @@ async function love(){await theme('#f6f3ea','#0b0b0b',4);gsap.to(fx,{speed:1.4,a
  plant(6,{solid:true,sizes:[90,200]});const sv=stage.firstElementChild;
  await gsap.fromTo('.d',{strokeDasharray:1,strokeDashoffset:1},{strokeDashoffset:0,duration:3,stagger:.45,ease:'power2.inOut'}).then();
  gsap.to('.hr',{fillOpacity:.8,duration:2});await wait(3.5);await fade(sv,2);await clearPlants()}
-async function yes(){log('answer',{value:'yes'});save({proposalResponse:'yes'});gsap.to(fx,{speed:2.5,alpha:1,duration:4});
+async function yes(){acceptSong();log('answer',{value:'yes'});save({proposalResponse:'yes'});gsap.to(fx,{speed:2.5,alpha:1,duration:4});
  plant(7,{solid:true,sizes:[160,380]});gsap.to('body',{backgroundImage:'radial-gradient(circle at 50% 60%,rgba(107,122,58,.35),rgba(188,215,238,.25) 55%,transparent 80%)',duration:5});
  const h=big('Yayyy!');await reveal(h,{d:1.6,st:.15});await gsap.to(h.querySelectorAll('.ch'),{y:-26,duration:.4,stagger:.08,yoyo:true,repeat:3,ease:'power2.inOut'}).then();await wait(1.5);await fade(h,2);
  await say(['Tumi sotti accept korso!','Ami ekhono biswas korte parchi na.'],{hold:3.4})}
